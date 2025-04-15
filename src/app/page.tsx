@@ -1,4 +1,3 @@
-
 'use client';
 
 import {Sidebar, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarProvider, SidebarTrigger, SidebarContent, SidebarHeader, SidebarSeparator, SidebarFooter, SidebarInput} from '@/components/ui/sidebar';
@@ -11,7 +10,15 @@ import {interactWithAiAssistant} from '@/ai/flows/responsive-chat-box';
 import {autoDetectErrorsAndProvideSolutions} from '@/ai/flows/auto-detect-error-and-solving';
 import {toast} from "@/hooks/use-toast"
 import { Label } from '@/components/ui/label';
-import * as vscode from 'vscode';
+import type * as vscodeType from 'vscode';
+
+// Declare vscode in the global scope
+declare global {
+  interface Window {
+    vscode: vscodeType | undefined;
+  }
+  var vscode: vscodeType | undefined;
+}
 
 interface ErrorAssistantProps {
   code: string;
@@ -146,36 +153,45 @@ export function Home() {
    useEffect(() => {
     // Function to read API keys from VS Code configuration
     const readApiKeys = () => {
-      setGoogleApiKey(vscode.workspace.getConfiguration('firebase-studio').get('googleApiKey') as string || '');
-      setOpenAiApiKey(vscode.workspace.getConfiguration('firebase-studio').get('openaiApiKey') as string || '');
-      setGroqApiKey(vscode.workspace.getConfiguration('firebase-studio').get('groqApiKey') as string || '');
-      setDeepSeekApiKey(vscode.workspace.getConfiguration('firebase-studio').get('deepSeekApiKey') as string || '');
+      if (typeof window !== 'undefined' && typeof window.vscode !== 'undefined') {
+        setGoogleApiKey(window.vscode.workspace.getConfiguration('firebase-studio').get('googleApiKey') as string || '');
+        setOpenAiApiKey(window.vscode.workspace.getConfiguration('firebase-studio').get('openaiApiKey') as string || '');
+        setGroqApiKey(window.vscode.workspace.getConfiguration('firebase-studio').get('groqApiKey') as string || '');
+        setDeepSeekApiKey(window.vscode.workspace.getConfiguration('firebase-studio').get('deepSeekApiKey') as string || '');
+      }
     };
 
     // Initial read of API keys
     readApiKeys();
 
     // Listen for configuration changes
-    const configChangeListener = vscode.workspace.onDidChangeConfiguration(event => {
-      if (event.affectsConfiguration('firebase-studio')) {
-        readApiKeys();
-      }
-    });
+    if (typeof window !== 'undefined' && typeof window.vscode !== 'undefined') {
+      const configChangeListener = window.vscode.workspace.onDidChangeConfiguration(event => {
+        if (event.affectsConfiguration('firebase-studio')) {
+          readApiKeys();
+        }
+      });
 
-    return () => {
-      configChangeListener.dispose();
-    };
+      return () => {
+        configChangeListener.dispose();
+      };
+    }
   }, []);
+
+  // Use a type assertion to tell TypeScript that 'vscode' might be available
+  const vscode = typeof window !== 'undefined' && typeof window.require === 'function' ? (window.vscode ? window.vscode : undefined) : undefined;
 
 
   useEffect(() => {
     // Function to get the current active file's code
     const getActiveFileCode = () => {
-      const editor = vscode.window.activeTextEditor;
-      if (editor) {
-        const document = editor.document;
-        setCode(document.getText());
-        setFilePath(document.uri.fsPath);
+      if (typeof vscode !== 'undefined' && vscode) {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+          const document = editor.document;
+          setCode(document.getText());
+          setFilePath(document.uri.fsPath);
+        }
       }
     };
 
@@ -183,20 +199,22 @@ export function Home() {
     getActiveFileCode();
 
     // Listen for active text editor changes
-    const activeTextEditorListener = vscode.window.onDidChangeActiveTextEditor(editor => {
-      getActiveFileCode();
-    });
+   if (typeof vscode !== 'undefined') {
+      const activeTextEditorListener = vscode.window.onDidChangeActiveTextEditor(editor => {
+        getActiveFileCode();
+      });
 
-    // Listen for document changes
-    const documentChangeListener = vscode.workspace.onDidChangeTextDocument(event => {
-      getActiveFileCode();
-    });
+      // Listen for document changes
+      const documentChangeListener = vscode.workspace.onDidChangeTextDocument(event => {
+        getActiveFileCode();
+      });
 
-    return () => {
-      activeTextEditorListener.dispose();
-      documentChangeListener.dispose();
-    };
-  }, []);
+      return () => {
+        activeTextEditorListener.dispose();
+        documentChangeListener.dispose();
+      };
+    }
+  }, [vscode]);
 
   const handleSendMessage = async () => {
     const result = await interactWithAiAssistant({message: message});
@@ -312,3 +330,5 @@ export function Home() {
     </SidebarProvider>
   );
 }
+
+
