@@ -15,7 +15,7 @@ import type * as vscodeType from 'vscode';
 // Declare vscode in the global scope
 declare global {
   interface Window {
-    vscode: any | undefined;
+    vscode: typeof vscodeType | undefined;
   }
 }
 
@@ -182,7 +182,7 @@ const Home = () => {
   useEffect(() => {
     if (typeof window !== 'undefined' && typeof window.require === 'function') {
         try {
-            const vscode = window.vscode ? window.vscode : undefined;
+            const vscode = (window as any).vscode ? (window as any).vscode : undefined;
             setVscode(vscode);
         } catch (error) {
             console.error("Failed to load vscode api:", error);
