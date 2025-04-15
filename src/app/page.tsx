@@ -7,7 +7,10 @@ import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {Textarea} from '@/components/ui/textarea';
 import {useState, useEffect, useCallback} from 'react';
 import { Label } from '@/components/ui/label';
-import type * as vscodeType from 'vscode';
+
+declare global {
+  interface Window { vscode: any; }
+}
 
 const Home = () => {
   const [message, setMessage] = useState('');
@@ -18,7 +21,7 @@ const Home = () => {
   const [openAiApiKey, setOpenAiApiKey] = useState('');
   const [groqApiKey, setGroqApiKey] = useState('');
   const [deepSeekApiKey, setDeepSeekApiKey] = useState('');
-  const [vscode, setVscode] = useState<vscodeType | undefined>(undefined);
+  const [vscode, setVscode] = useState<any>(undefined);
 
 
   const handleCodeChange = (newCode: string) => {
