@@ -12,24 +12,13 @@ import {toast} from "@/hooks/use-toast"
 import { Label } from '@/components/ui/label';
 import type * as vscodeType from 'vscode';
 
-// Declare vscode in the global scope
-declare global {
-  interface Window {
-    vscode: typeof vscodeType | undefined;
-  }
-}
-
 interface ErrorAssistantProps {
   code: string;
   filePath: string;
-  googleApiKey: string;
-  openAiApiKey: string;
-  groqApiKey: string;
-  deepSeekApiKey: string;
   onCodeChange: (newCode: string) => void;
 }
 
-const ErrorAssistant: React.FC<ErrorAssistantProps> = ({ code, filePath, googleApiKey, openAiApiKey, groqApiKey, deepSeekApiKey, onCodeChange }) => {
+const ErrorAssistant: React.FC<ErrorAssistantProps> = ({ code, filePath, onCodeChange }) => {
   const [errorMessage, setErrorMessage] = useState<string | undefined>('');
   const [suggestedSolution, setSuggestedSolution] = useState<string | undefined>('');
   const [hasErrors, setHasErrors] = useState<boolean>(false);
@@ -143,83 +132,56 @@ const Home = () => {
   const [openAiApiKey, setOpenAiApiKey] = useState('');
   const [groqApiKey, setGroqApiKey] = useState('');
   const [deepSeekApiKey, setDeepSeekApiKey] = useState('');
-  const [projectPath, setProjectPath] = useState('/src'); // Simulate project path
-  const [vscode, setVscode] = useState<any | undefined>(undefined);
+  const [vscode, setVscode] = useState<vscodeType | undefined>(undefined);
+
 
   const handleCodeChange = (newCode: string) => {
     setCode(newCode);
   };
 
-   useEffect(() => {
-    // Function to read API keys from VS Code configuration
-    const readApiKeys = () => {
-      if (typeof window !== 'undefined' && typeof window.vscode !== 'undefined') {
+  useEffect(() => {
+    if (typeof window !== 'undefined' && typeof window.vscode !== 'undefined') {
+      setVscode(window.vscode);
+      const readApiKeys = () => {
         setGoogleApiKey(window.vscode.workspace.getConfiguration('firebase-studio').get('googleApiKey') as string || '');
         setOpenAiApiKey(window.vscode.workspace.getConfiguration('firebase-studio').get('openaiApiKey') as string || '');
-        setGroqApiKey(window.vscode.workspace.getConfiguration('firebase-studio').get('groqApiKey') as string || '');
+         setGroqApiKey(window.vscode.workspace.getConfiguration('firebase-studio').get('groqApiKey') as string || '');
         setDeepSeekApiKey(window.vscode.workspace.getConfiguration('firebase-studio').get('deepSeekApiKey') as string || '');
-      }
-    };
-
-    // Initial read of API keys
-    readApiKeys();
-
-    // Listen for configuration changes
-    if (typeof window !== 'undefined' && typeof window.vscode !== 'undefined') {
-      const configChangeListener = window.vscode.workspace.onDidChangeConfiguration((event: any) => {
-        if (event.affectsConfiguration('firebase-studio')) {
-          readApiKeys();
-        }
-      });
-
-      return () => {
-        configChangeListener.dispose();
       };
+      readApiKeys();
+
+       const configChangeListener = window.vscode.workspace.onDidChangeConfiguration(() => {
+          readApiKeys();
+        });
+        return () => {
+          configChangeListener.dispose();
+        };
     }
   }, []);
 
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && typeof window.require === 'function') {
-        try {
-            const vscode = (window as any).vscode ? (window as any).vscode : undefined;
-            setVscode(vscode);
-        } catch (error) {
-            console.error("Failed to load vscode api:", error);
-        }
-    }
-}, []);
-
-  useEffect(() => {
-    // Function to get the current active file's code
     const getActiveFileCode = () => {
-      if (vscode) {
+      if (vscode && vscode.window.activeTextEditor) {
         const editor = vscode.window.activeTextEditor;
-        if (editor) {
-          const document = editor.document;
-          setCode(document.getText());
-          setFilePath(document.uri.fsPath);
-        }
+        setCode(editor.document.getText());
+        setFilePath(editor.document.uri.fsPath);
       }
     };
 
-    // Initial load of the active file's code
     getActiveFileCode();
-
-    // Listen for active text editor changes
    if (vscode) {
-      const activeTextEditorListener = vscode.window.onDidChangeActiveTextEditor((editor: any) => {
+      const activeTextEditorListener = vscode.window.onDidChangeActiveTextEditor(() => {
         getActiveFileCode();
       });
 
-      // Listen for document changes
-      const documentChangeListener = vscode.workspace.onDidChangeTextDocument((event: any) => {
-        getActiveFileCode();
-      });
+       const documentChangeListener = vscode.workspace.onDidChangeTextDocument(() => {
+         getActiveFileCode();
+       });
 
       return () => {
         activeTextEditorListener.dispose();
-        documentChangeListener.dispose();
+         documentChangeListener.dispose();
       };
     }
   }, [vscode]);
@@ -326,10 +288,6 @@ const Home = () => {
             <ErrorAssistant
               code={code}
               filePath={filePath}
-              googleApiKey={googleApiKey}
-              openAiApiKey={openAiApiKey}
-              groqApiKey={groqApiKey}
-              deepSeekApiKey={deepSeekApiKey}
               onCodeChange={handleCodeChange}
             />
           </CardContent>

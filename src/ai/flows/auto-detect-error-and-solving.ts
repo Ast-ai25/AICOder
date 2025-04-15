@@ -10,7 +10,6 @@
 import {ai} from '@/ai/ai-instance';
 import {z} from 'genkit';
 import { ESLint, Linter } from 'eslint';
-// import * as babelParser from '@babel/eslint-parser';
 
 const AutoDetectErrorsAndProvideSolutionsInputSchema = z.object({
   code: z.string().describe('The code to analyze for errors.'),
@@ -41,27 +40,27 @@ const analyzeCodeForErrors = ai.defineTool({
 },
 async input => {
     // Initialize ESLint
-    const eslint = new ESLint({ fix: false, useEslintrc: false,
+    const eslint = new ESLint({
+      fix: false,
+      useEslintrc: false,
       overrideConfig: {
-        baseConfig: {
-          parserOptions: {
-            ecmaVersion: 2021,
-            sourceType: 'module',
-            ecmaFeatures: { jsx: true },
-          },
-          env: {
-            browser: true,
-            node: true,
-            es6: true,
-          },
-          rules: {
-            'no-unused-vars': 'warn',
-            'no-console': 'warn',
-            'no-debugger': 'warn',
-            'no-undef': 'warn',
-          },
-        }
-      }
+        parserOptions: {
+          ecmaVersion: 2021,
+          sourceType: 'module',
+          ecmaFeatures: { jsx: true },
+        },
+        env: {
+          browser: true,
+          node: true,
+          es6: true,
+        },
+        rules: {
+          'no-unused-vars': 'warn',
+          'no-console': 'warn',
+          'no-debugger': 'warn',
+          'no-undef': 'warn',
+        },
+      },
     });
 
   try {
