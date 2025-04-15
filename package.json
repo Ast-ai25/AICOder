@@ -1,15 +1,77 @@
 {
-  "name": "nextn",
-  "version": "0.1.0",
-  "private": true,
+  "name": "firebase-studio",
+  "displayName": "Firebase Studio",
+  "description": "A VS Code extension for Firebase Studio",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:firebase-studio.start"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "firebase-studio.start",
+        "title": "Start Firebase Studio"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "firebase-studio-view",
+          "title": "Firebase Studio",
+          "icon": "media/firebase.svg"
+        }
+      ]
+    },
+    "views": {
+      "firebase-studio-view": [
+        {
+          "id": "firebase-studio-panel",
+          "name": "Studio Panel"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Firebase Studio",
+      "properties": {
+        "firebase-studio.googleApiKey": {
+          "type": "string",
+          "description": "Google AI API Key"
+        },
+        "firebase-studio.openaiApiKey": {
+          "type": "string",
+          "description": "OpenAI API Key"
+        },
+        "firebase-studio.groqApiKey": {
+          "type": "string",
+          "description": "Groq API Key"
+        },
+        "firebase-studio.deepSeekApiKey": {
+          "type": "string",
+          "description": "DeepSeek API Key"
+        }
+      }
+    }
+  },
   "scripts": {
     "dev": "next dev --turbopack -p 9002",
     "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
     "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "lint": "eslint src --ext ts --ext tsx --report-unused-disable-directives --max-warnings 0",
+    "typecheck": "tsc --noEmit",
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -w -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "test": "node ./out/test/runTest.js"
   },
   "dependencies": {
     "@genkit-ai/googleai": "^1.0.4",
@@ -60,10 +122,17 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/vscode": "^1.75.0",
+    "@types/glob": "^8.1.0",
     "eslint": "^8.57.0",
     "genkit-cli": "^1.0.4",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "typescript": "^5",
+    "@vscode/test-electron": "^2.2.0",
+    "eslint-plugin-import": "^2.27.5",
+    "glob": "^8.1.0",
+    "mocha": "^10.2.0",
+    "prettier": "^2.8.7"
   }
 }

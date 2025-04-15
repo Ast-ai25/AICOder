@@ -1,3 +1,4 @@
+
 'use client';
 
 import {Sidebar, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarProvider, SidebarTrigger, SidebarContent, SidebarHeader, SidebarSeparator, SidebarFooter, SidebarInput} from '@/components/ui/sidebar';
@@ -10,6 +11,7 @@ import {interactWithAiAssistant} from '@/ai/flows/responsive-chat-box';
 import {autoDetectErrorsAndProvideSolutions} from '@/ai/flows/auto-detect-error-and-solving';
 import {toast} from "@/hooks/use-toast"
 import { Label } from '@/components/ui/label';
+import * as vscode from 'vscode';
 
 interface ErrorAssistantProps {
   code: string;
@@ -126,48 +128,73 @@ const ErrorAssistant: React.FC<ErrorAssistantProps> = ({ code, filePath, googleA
   );
 };
 
-export default function Home() {
+export function Home() {
   const [message, setMessage] = useState('');
   const [response, setResponse] = useState('');
   const [code, setCode] = useState('');
   const [filePath, setFilePath] = useState('');
   const [googleApiKey, setGoogleApiKey] = useState('');
   const [openAiApiKey, setOpenAiApiKey] = useState('');
-    const [groqApiKey, setGroqApiKey] = useState('');
-    const [deepSeekApiKey, setDeepSeekApiKey] = useState('');
+  const [groqApiKey, setGroqApiKey] = useState('');
+  const [deepSeekApiKey, setDeepSeekApiKey] = useState('');
   const [projectPath, setProjectPath] = useState('/src'); // Simulate project path
 
   const handleCodeChange = (newCode: string) => {
     setCode(newCode);
   };
 
-
-  useEffect(() => {
-    // Example code and file path for demonstration
-    setCode(`
-    function greet(name) {
-      if (name == "John")
-        return "Hello, " + name;
-      }
-    }
-    `);
-    setFilePath('/src/example.js');
-
-    // Simulate file save event (for demonstration purposes)
-    const simulateFileSave = () => {
-      console.log('Simulating file save...');
-      // In a real-world scenario, this would be triggered by a file system event
-      // or IDE integration
+   useEffect(() => {
+    // Function to read API keys from VS Code configuration
+    const readApiKeys = () => {
+      setGoogleApiKey(vscode.workspace.getConfiguration('firebase-studio').get('googleApiKey') as string || '');
+      setOpenAiApiKey(vscode.workspace.getConfiguration('firebase-studio').get('openaiApiKey') as string || '');
+      setGroqApiKey(vscode.workspace.getConfiguration('firebase-studio').get('groqApiKey') as string || '');
+      setDeepSeekApiKey(vscode.workspace.getConfiguration('firebase-studio').get('deepSeekApiKey') as string || '');
     };
 
-    // Simulate background error analysis (for demonstration purposes)
-    const backgroundAnalysisInterval = setInterval(() => {
-      console.log('Running background error analysis...');
-      // In a real-world scenario, this would trigger the analyzeCode function
-    }, 60000); // Run every 60 seconds
+    // Initial read of API keys
+    readApiKeys();
+
+    // Listen for configuration changes
+    const configChangeListener = vscode.workspace.onDidChangeConfiguration(event => {
+      if (event.affectsConfiguration('firebase-studio')) {
+        readApiKeys();
+      }
+    });
 
     return () => {
-      clearInterval(backgroundAnalysisInterval);
+      configChangeListener.dispose();
+    };
+  }, []);
+
+
+  useEffect(() => {
+    // Function to get the current active file's code
+    const getActiveFileCode = () => {
+      const editor = vscode.window.activeTextEditor;
+      if (editor) {
+        const document = editor.document;
+        setCode(document.getText());
+        setFilePath(document.uri.fsPath);
+      }
+    };
+
+    // Initial load of the active file's code
+    getActiveFileCode();
+
+    // Listen for active text editor changes
+    const activeTextEditorListener = vscode.window.onDidChangeActiveTextEditor(editor => {
+      getActiveFileCode();
+    });
+
+    // Listen for document changes
+    const documentChangeListener = vscode.workspace.onDidChangeTextDocument(event => {
+      getActiveFileCode();
+    });
+
+    return () => {
+      activeTextEditorListener.dispose();
+      documentChangeListener.dispose();
     };
   }, []);
 
@@ -275,7 +302,7 @@ export default function Home() {
               filePath={filePath}
               googleApiKey={googleApiKey}
               openAiApiKey={openAiApiKey}
-                 groqApiKey={groqApiKey}
+              groqApiKey={groqApiKey}
               deepSeekApiKey={deepSeekApiKey}
               onCodeChange={handleCodeChange}
             />
