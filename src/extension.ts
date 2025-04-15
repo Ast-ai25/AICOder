@@ -1,6 +1,6 @@
 
 import * as vscode from 'vscode';
-import { Home } from './app/page';  // Import the Home component
+import Home from './app/page';  // Import the Home component
 import { getNonce } from './utils';
 
 export function activate(context: vscode.ExtensionContext) {

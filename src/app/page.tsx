@@ -10,14 +10,14 @@ import {interactWithAiAssistant} from '@/ai/flows/responsive-chat-box';
 import {autoDetectErrorsAndProvideSolutions} from '@/ai/flows/auto-detect-error-and-solving';
 import {toast} from "@/hooks/use-toast"
 import { Label } from '@/components/ui/label';
-import type * as vscodeType from 'vscode';
+// import type * as vscodeType from 'vscode';
 
 // Declare vscode in the global scope
 declare global {
   interface Window {
-    vscode: vscodeType | undefined;
+    vscode: any | undefined;
   }
-  var vscode: vscodeType | undefined;
+  var vscode: any | undefined;
 }
 
 interface ErrorAssistantProps {
@@ -166,7 +166,7 @@ const Home = () => {
 
     // Listen for configuration changes
     if (typeof window !== 'undefined' && typeof window.vscode !== 'undefined') {
-      const configChangeListener = window.vscode.workspace.onDidChangeConfiguration(event => {
+      const configChangeListener = window.vscode.workspace.onDidChangeConfiguration((event: any) => {
         if (event.affectsConfiguration('firebase-studio')) {
           readApiKeys();
         }
@@ -178,7 +178,6 @@ const Home = () => {
     }
   }, []);
 
-  // Use a type assertion to tell TypeScript that 'vscode' might be available
   const vscode = typeof window !== 'undefined' && typeof window.require === 'function' ? (window.vscode ? window.vscode : undefined) : undefined;
 
 
@@ -200,12 +199,12 @@ const Home = () => {
 
     // Listen for active text editor changes
    if (typeof vscode !== 'undefined') {
-      const activeTextEditorListener = vscode.window.onDidChangeActiveTextEditor(editor => {
+      const activeTextEditorListener = vscode.window.onDidChangeActiveTextEditor((editor: any) => {
         getActiveFileCode();
       });
 
       // Listen for document changes
-      const documentChangeListener = vscode.workspace.onDidChangeTextDocument(event => {
+      const documentChangeListener = vscode.workspace.onDidChangeTextDocument((event: any) => {
         getActiveFileCode();
       });
 

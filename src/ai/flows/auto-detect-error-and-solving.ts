@@ -9,7 +9,7 @@
 
 import {ai} from '@/ai/ai-instance';
 import {z} from 'genkit';
-import { ESLint } from 'eslint';
+import { ESLint, Linter } from 'eslint';
 
 const AutoDetectErrorsAndProvideSolutionsInputSchema = z.object({
   code: z.string().describe('The code to analyze for errors.'),
@@ -69,7 +69,7 @@ async input => {
 
     // Extract error messages
     if (results && results.length > 0) {
-      const errors = results[0].messages.map(message => `Line ${message.line}, Col ${message.column}: ${message.message} (${message.ruleId})`).join('; ');
+      const errors = results[0].messages.map((message: Linter.LintMessage) => `Line ${message.line}, Col ${message.column}: ${message.message} (${message.ruleId})`).join('; ');
       if (errors) {
         return errors;
       }
