@@ -43,25 +43,25 @@ async input => {
     // Initialize ESLint
     const eslint = new ESLint({ fix: false, useEslintrc: false,
       overrideConfig: {
-        parserOptions: {
-          ecmaVersion: 2021,
-          sourceType: 'module',
-          ecmaFeatures: { jsx: true },
-        },
-        env: {
-          browser: true,
-          node: true,
-          es6: true,
-        },
-        rules: {
-          'no-unused-vars': 'warn',
-          'no-console': 'warn',
-          'no-debugger': 'warn',
-          'no-undef': 'warn',
-        },
-        //@ts-ignore
-        parser: '@babel/eslint-parser',
-      },
+        baseConfig: {
+          parserOptions: {
+            ecmaVersion: 2021,
+            sourceType: 'module',
+            ecmaFeatures: { jsx: true },
+          },
+          env: {
+            browser: true,
+            node: true,
+            es6: true,
+          },
+          rules: {
+            'no-unused-vars': 'warn',
+            'no-console': 'warn',
+            'no-debugger': 'warn',
+            'no-undef': 'warn',
+          },
+        }
+      }
     });
 
   try {
