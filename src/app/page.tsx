@@ -10,14 +10,13 @@ import {interactWithAiAssistant} from '@/ai/flows/responsive-chat-box';
 import {autoDetectErrorsAndProvideSolutions} from '@/ai/flows/auto-detect-error-and-solving';
 import {toast} from "@/hooks/use-toast"
 import { Label } from '@/components/ui/label';
-// import type * as vscodeType from 'vscode';
+import type * as vscodeType from 'vscode';
 
 // Declare vscode in the global scope
 declare global {
   interface Window {
     vscode: any | undefined;
   }
-  var vscode: any | undefined;
 }
 
 interface ErrorAssistantProps {
@@ -145,6 +144,7 @@ const Home = () => {
   const [groqApiKey, setGroqApiKey] = useState('');
   const [deepSeekApiKey, setDeepSeekApiKey] = useState('');
   const [projectPath, setProjectPath] = useState('/src'); // Simulate project path
+  const [vscode, setVscode] = useState<any | undefined>(undefined);
 
   const handleCodeChange = (newCode: string) => {
     setCode(newCode);
@@ -178,13 +178,22 @@ const Home = () => {
     }
   }, []);
 
-  const vscode = typeof window !== 'undefined' && typeof window.require === 'function' ? (window.vscode ? window.vscode : undefined) : undefined;
 
+  useEffect(() => {
+    if (typeof window !== 'undefined' && typeof window.require === 'function') {
+        try {
+            const vscode = window.vscode ? window.vscode : undefined;
+            setVscode(vscode);
+        } catch (error) {
+            console.error("Failed to load vscode api:", error);
+        }
+    }
+}, []);
 
   useEffect(() => {
     // Function to get the current active file's code
     const getActiveFileCode = () => {
-      if (typeof vscode !== 'undefined' && vscode) {
+      if (vscode) {
         const editor = vscode.window.activeTextEditor;
         if (editor) {
           const document = editor.document;
@@ -198,7 +207,7 @@ const Home = () => {
     getActiveFileCode();
 
     // Listen for active text editor changes
-   if (typeof vscode !== 'undefined') {
+   if (vscode) {
       const activeTextEditorListener = vscode.window.onDidChangeActiveTextEditor((editor: any) => {
         getActiveFileCode();
       });

@@ -57,8 +57,9 @@ async input => {
           'no-debugger': 'warn',
           'no-undef': 'warn'
         },
-        parser: "@babel/eslint-parser",
-      }
+        //@ts-ignore
+        parser: '@babel/eslint-parser',
+      },
     });
 
   try {
