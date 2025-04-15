@@ -6,122 +6,8 @@ import {Input} from '@/components/ui/input';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {Textarea} from '@/components/ui/textarea';
 import {useState, useEffect, useCallback} from 'react';
-import {interactWithAiAssistant} from '@/ai/flows/responsive-chat-box';
-import {autoDetectErrorsAndProvideSolutions} from '@/ai/flows/auto-detect-error-and-solving';
-import {toast} from "@/hooks/use-toast"
 import { Label } from '@/components/ui/label';
 import type * as vscodeType from 'vscode';
-
-interface ErrorAssistantProps {
-  code: string;
-  filePath: string;
-  onCodeChange: (newCode: string) => void;
-}
-
-const ErrorAssistant: React.FC<ErrorAssistantProps> = ({ code, filePath, onCodeChange }) => {
-  const [errorMessage, setErrorMessage] = useState<string | undefined>('');
-  const [suggestedSolution, setSuggestedSolution] = useState<string | undefined>('');
-  const [hasErrors, setHasErrors] = useState<boolean>(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-
-  const analyzeCode = useCallback(async (codeToAnalyze: string) => {
-    setIsAnalyzing(true);
-    try {
-      const result = await autoDetectErrorsAndProvideSolutions({
-        code: codeToAnalyze,
-        filePath: filePath,
-        userConsent: true,
-      });
-      setHasErrors(result.hasErrors);
-      setErrorMessage(result.errorMessage);
-      setSuggestedSolution(result.suggestedSolution);
-      if (result.hasErrors) {
-        toast({
-          title: "Error Detected",
-          description: result.errorMessage || "An error was detected in the code.",
-        });
-      } else {
-         toast({
-          title: "No Errors",
-          description: "No errors were detected in the code.",
-        });
-      }
-    } catch (error: any) {
-      console.error("Error during code analysis:", error);
-      setHasErrors(true);
-      setErrorMessage(`Code analysis failed: ${error.message}`);
-      setSuggestedSolution(undefined);
-        toast({
-          title: "Analysis Failed",
-          description: `Code analysis failed: ${error.message}`,
-        });
-    } finally {
-      setIsAnalyzing(false);
-    }
-  }, [filePath]);
-
-  const handleAnalyzeCode = () => {
-    analyzeCode(code);
-  };
-
-  const handleApplyFix = () => {
-    if (suggestedSolution) {
-      onCodeChange(suggestedSolution); // Apply the fix to the code
-      toast({
-        title: "Fix Applied",
-        description: "The suggested fix has been applied to the code.",
-      });
-    }
-  };
-
-    // Simulate file save event
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key === 's') {
-        event.preventDefault();
-        console.log('Simulating file save...');
-        analyzeCode(code);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [code, filePath, analyzeCode]);
-
-  useEffect(() => {
-    const debouncedAnalyze = setTimeout(() => {
-      if (code) {
-        analyzeCode(code);
-      }
-    }, 5000); // Debounce analysis for 5 seconds
-
-    return () => clearTimeout(debouncedAnalyze);
-  }, [code, filePath, analyzeCode]);
-
-  return (
-    <div>
-      <Button onClick={handleAnalyzeCode} disabled={isAnalyzing}>
-        {isAnalyzing ? 'Analyzing...' : 'Analyze Code'}
-      </Button>
-      {hasErrors && errorMessage && (
-        <div>
-          <h3>Error:</h3>
-          <p>{errorMessage}</p>
-          {suggestedSolution && (
-            <div>
-              <h3>Suggested Solution:</h3>
-              <p>{suggestedSolution}</p>
-              <Button onClick={handleApplyFix}>Apply Fix</Button>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-};
 
 const Home = () => {
   const [message, setMessage] = useState('');
@@ -185,11 +71,6 @@ const Home = () => {
       };
     }
   }, [vscode]);
-
-  const handleSendMessage = async () => {
-    const result = await interactWithAiAssistant({message: message});
-    setResponse(result.response);
-  };
 
   return (
     <SidebarProvider>
@@ -270,26 +151,7 @@ const Home = () => {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
             />
-            <Button onClick={handleSendMessage}>Send</Button>
-            <div>{response}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Error Assistant</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Textarea
-              placeholder="Enter your code"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-            />
-            <ErrorAssistant
-              code={code}
-              filePath={filePath}
-              onCodeChange={handleCodeChange}
-            />
+            <Button>Send</Button>
           </CardContent>
         </Card>
       </SidebarInset>
