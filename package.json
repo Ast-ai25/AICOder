@@ -74,6 +74,7 @@
     "test": "node ./out/test/runTest.js"
   },
   "dependencies": {
+    "@babel/eslint-parser": "^7.27.0",
     "@genkit-ai/googleai": "^1.0.4",
     "@genkit-ai/next": "^1.0.4",
     "@hookform/resolvers": "^4.1.3",
@@ -111,28 +112,28 @@
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.54.2",
+    "react-hot-toast": "*",
     "recharts": "^2.15.1",
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
-    "zod": "^3.24.2",
-    "react-hot-toast": "*"
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@eslint/js": "^8.57.0",
+    "@types/glob": "^8.1.0",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/vscode": "^1.75.0",
-    "@types/glob": "^8.1.0",
-    "eslint": "^8.57.0",
-    "genkit-cli": "^1.0.4",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5",
     "@vscode/test-electron": "^2.2.0",
+    "eslint": "^8.57.1",
     "eslint-plugin-import": "^2.27.5",
+    "genkit-cli": "^1.0.4",
     "glob": "^8.1.0",
     "mocha": "^10.2.0",
-    "prettier": "^2.8.7"
+    "postcss": "^8",
+    "prettier": "^2.8.7",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
   }
 }
