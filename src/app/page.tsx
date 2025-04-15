@@ -135,7 +135,7 @@ const ErrorAssistant: React.FC<ErrorAssistantProps> = ({ code, filePath, googleA
   );
 };
 
-export function Home() {
+const Home = () => {
   const [message, setMessage] = useState('');
   const [response, setResponse] = useState('');
   const [code, setCode] = useState('');
@@ -331,4 +331,4 @@ export function Home() {
   );
 }
 
-
+export default Home;
