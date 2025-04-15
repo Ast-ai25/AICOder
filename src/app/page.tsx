@@ -9,14 +9,19 @@ import {useState, useEffect, useCallback} from 'react';
 import {interactWithAiAssistant} from '@/ai/flows/responsive-chat-box';
 import {autoDetectErrorsAndProvideSolutions} from '@/ai/flows/auto-detect-error-and-solving';
 import {toast} from "@/hooks/use-toast"
+import { Label } from '@/components/ui/label';
 
 interface ErrorAssistantProps {
   code: string;
   filePath: string;
+  googleApiKey: string;
+  openAiApiKey: string;
+  groqApiKey: string;
+  deepSeekApiKey: string;
   onCodeChange: (newCode: string) => void;
 }
 
-const ErrorAssistant: React.FC<ErrorAssistantProps> = ({ code, filePath, onCodeChange }) => {
+const ErrorAssistant: React.FC<ErrorAssistantProps> = ({ code, filePath, googleApiKey, openAiApiKey, groqApiKey, deepSeekApiKey, onCodeChange }) => {
   const [errorMessage, setErrorMessage] = useState<string | undefined>('');
   const [suggestedSolution, setSuggestedSolution] = useState<string | undefined>('');
   const [hasErrors, setHasErrors] = useState<boolean>(false);
@@ -72,6 +77,23 @@ const ErrorAssistant: React.FC<ErrorAssistantProps> = ({ code, filePath, onCodeC
     }
   };
 
+    // Simulate file save event
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === 's') {
+        event.preventDefault();
+        console.log('Simulating file save...');
+        analyzeCode(code);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [code, filePath, analyzeCode]);
+
   useEffect(() => {
     const debouncedAnalyze = setTimeout(() => {
       if (code) {
@@ -109,6 +131,11 @@ export default function Home() {
   const [response, setResponse] = useState('');
   const [code, setCode] = useState('');
   const [filePath, setFilePath] = useState('');
+  const [googleApiKey, setGoogleApiKey] = useState('');
+  const [openAiApiKey, setOpenAiApiKey] = useState('');
+    const [groqApiKey, setGroqApiKey] = useState('');
+    const [deepSeekApiKey, setDeepSeekApiKey] = useState('');
+  const [projectPath, setProjectPath] = useState('/src'); // Simulate project path
 
   const handleCodeChange = (newCode: string) => {
     setCode(newCode);
@@ -175,6 +202,49 @@ export default function Home() {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
+           <Card>
+          <CardHeader>
+            <CardTitle>API Keys</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4">
+            <div>
+              <Label htmlFor="googleApiKey">Google AI API Key</Label>
+              <Input
+                id="googleApiKey"
+                type="password"
+                value={googleApiKey}
+                onChange={(e) => setGoogleApiKey(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="openaiApiKey">OpenAI API Key</Label>
+              <Input
+                id="openaiApiKey"
+                type="password"
+                value={openAiApiKey}
+                onChange={(e) => setOpenAiApiKey(e.target.value)}
+              />
+            </div>
+               <div>
+              <Label htmlFor="groqApiKey">Groq API Key</Label>
+              <Input
+                id="groqApiKey"
+                type="password"
+                value={groqApiKey}
+                onChange={(e) => setGroqApiKey(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="deepSeekApiKey">DeepSeek API Key</Label>
+              <Input
+                id="deepSeekApiKey"
+                type="password"
+                value={deepSeekApiKey}
+                onChange={(e) => setDeepSeekApiKey(e.target.value)}
+              />
+            </div>
+          </CardContent>
+        </Card>
         <Card>
           <CardHeader>
             <CardTitle>AI Assistant Chat</CardTitle>
@@ -200,7 +270,15 @@ export default function Home() {
               value={code}
               onChange={(e) => setCode(e.target.value)}
             />
-            <ErrorAssistant code={code} filePath={filePath} onCodeChange={handleCodeChange} />
+            <ErrorAssistant
+              code={code}
+              filePath={filePath}
+              googleApiKey={googleApiKey}
+              openAiApiKey={openAiApiKey}
+                 groqApiKey={groqApiKey}
+              deepSeekApiKey={deepSeekApiKey}
+              onCodeChange={handleCodeChange}
+            />
           </CardContent>
         </Card>
       </SidebarInset>
