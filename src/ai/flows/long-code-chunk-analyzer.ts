@@ -1,4 +1,4 @@
-// 'use server';
+'use server';
 /**
  * @fileOverview Analyzes long code chunks and identifies potential error locations.
  *
@@ -7,7 +7,6 @@
  * - AnalyzeLongCodeChunkOutput - The return type for the analyzeLongCodeChunk function.
  */
 
-'use server';
 import {ai} from '@/ai/ai-instance';
 import {z} from 'genkit';
 
@@ -56,9 +55,9 @@ const prompt = ai.definePrompt({
   Analyze the following code chunk and identify potential error locations. Provide a description for each potential error.
 
   Code:
-  ```
-  {{{code}}}
-  ```
+  \`\`\`
+  {{code}}
+  \`\`\`
 
   Project Context (if available):
   {{{projectContext}}}
