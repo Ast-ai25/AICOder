@@ -10,11 +10,12 @@
 import {ai} from '@/ai/ai-instance';
 import {z} from 'genkit';
 import { ESLint, Linter } from 'eslint';
+import * as babelParser from '@babel/eslint-parser';
 
 const AutoDetectErrorsAndProvideSolutionsInputSchema = z.object({
   code: z.string().describe('The code to analyze for errors.'),
   filePath: z.string().describe('The path to the file containing the code.'),
-  userConsent: z.boolean().describe('Whether the user has given consent to automatically detect and solve errors.'),
+  userConsent: z.boolean().describe('Whether the user has given consent to automatically detect and solve errors automatically.'),
 });
 export type AutoDetectErrorsAndProvideSolutionsInput = z.infer<typeof AutoDetectErrorsAndProvideSolutionsInputSchema>;
 
@@ -45,21 +46,18 @@ async input => {
         parserOptions: {
           ecmaVersion: 2021,
           sourceType: 'module',
-          ecmaFeatures: {
-            jsx: true
-          }
+          ecmaFeatures: { jsx: true }
         },
         env: {
-          browser: true,
-          node: true,
-          es6: true,
+          browser: true, node: true, es6: true
         },
         rules: {
           'no-unused-vars': 'warn',
           'no-console': 'warn',
           'no-debugger': 'warn',
-          'no-undef': 'warn',
-        }
+          'no-undef': 'warn'
+        },
+        parser: "@babel/eslint-parser",
       }
     });
 
